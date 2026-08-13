@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Spark Prepaid Card — campaign site
 
-## Getting Started
+A mobile-first, scroll-driven landing page for **Spark**, the prepaid card from
+Dhaka Bank PLC. Built to the pop-art campaign key visuals: electric blue ground,
+acid yellow starbursts, hot pink call-outs, paint-marker lettering.
 
-First, run the development server:
+Every visual is drawn in code — SVG, CSS and container queries. There are no
+image assets, so the card is sharp at any size and re-skinnable from one file.
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+```bash
+npm run build && npm start   # production build
+npm run lint                 # eslint
+npx tsc --noEmit             # typecheck
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**To stop the dev server** (it keeps running in the background):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npx kill-port 3000
+```
 
-## Learn More
+## Stack
 
-To learn more about Next.js, take a look at the following resources:
+| | |
+|---|---|
+| Framework | Next.js 16 (App Router, Turbopack) + React 19 + TypeScript |
+| Styling | Tailwind CSS v4, CSS-first config in `src/app/globals.css` |
+| Motion | GSAP 3.15 — ScrollTrigger, SplitText, Observer, CustomEase |
+| Scrolling | Lenis on pointer devices; **native scroll on touch** |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Page order
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Hero** — what Spark is, with a pointer/touch-parallax card
+2. **Trust** — the one place the bank speaks: who issues the card, and that's it
+3. **CardStudio** — the big floating card + six designs you can print onto it
+4. **Perks** — six reasons to carry it
+5. **HowTo** — four steps, scrub-filled progress rail
+6. **Everywhere** — where it works, with a velocity-reactive marquee
+7. **FinalCta** — store badges
 
-## Deploy on Vercel
+## Mobile-first decisions
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+These are deliberate, and reversing them will make the phone experience worse.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Native touch scrolling.** `syncTouch: false` in
+[SmoothScroll.tsx](src/components/core/SmoothScroll.tsx). iOS and Android
+already scroll at high refresh rates with correct rubber-banding; intercepting
+that to re-implement it in JS is the most common cause of a site feeling laggy
+on a phone. Lenis still smooths the mouse wheel on desktop, and ScrollTrigger
+reads native scroll perfectly well.
+
+**No full-screen blur.** [Atmosphere.tsx](src/components/core/Atmosphere.tsx)
+uses transform and opacity only. A blurred full-viewport layer is the single
+most expensive thing a mobile GPU can paint.
+
+**`touch-action: pan-y` on the card.** Drag it sideways and it spins; drag up or
+down and the page scrolls. `touch-action: none` would trap the finger and make
+it impossible to scroll past the card.
+
+**Pointer events throughout.** One code path covers mouse and touch, so every
+parallax and press effect behaves the same under a finger.
+
+## The card
+
+[CardStudio.tsx](src/components/sections/CardStudio.tsx) runs a small physics
+loop on GSAP's ticker rather than tweening to fixed positions:
+
+- It idles at a slow yaw — roughly one turn every 21 seconds.
+- **Touching it anywhere applies an impulse from that point.** Tap a corner and
+  that corner swings; the grab offset is normalised to −1..1 from the centre.
+- Dragging adds yaw and pitch, and off-centre grabs convert drag into **roll** —
+  the cross product of grab offset and drag delta. That's the "sway".
+- Let go and angular velocity decays back to the idle spin.
+
+The loop is frame-rate independent (scaled by `deltaTime`), so it behaves the
+same on a 60Hz and a 120Hz screen.
+
+### Adding a seventh design
+
+Add one object to [designs.tsx](src/components/visuals/designs.tsx) — face art,
+ink colours and a two-colour swatch. The picker, the card and the flash
+transition all pick it up with no other edits.
+[SparkCard.tsx](src/components/visuals/SparkCard.tsx) sizes all its type in
+`cqw` against its own container, so the same component renders correctly as a
+40px thumbnail and as a 560px hero card without breakpoints.
+
+## Design tokens
+
+All at the top of [globals.css](src/app/globals.css). Change `--blue`,
+`--yellow` and `--pink` and the whole site re-skins, including the scroll colour
+journey in `Atmosphere`.
+
+## Accessibility
+
+- `prefers-reduced-motion` is honoured everywhere — the preloader is bypassed,
+  the card sits still, and scrubbed transitions are skipped.
+- Pinch-zoom is **not** disabled.
+- The design picker is a real `radiogroup`; every control clears a 44px+ touch
+  target.
+
+## Deploying to Vercel
+
+Zero config.
+
+```bash
+npm i -g vercel
+vercel --prod
+```
+
+## Before this goes live
+
+The site uses **placeholder brand assets and illustrative content**:
+
+- The Spark bolt mark and the Dhaka Bank wordmark in
+  [Logo.tsx](src/components/core/Logo.tsx) are drawn approximations — swap in
+  the official vectors.
+- Colours are sampled from the supplied key visuals by eye, not from a brand
+  guide. Check them against the real spec.
+- Card designs, the ৳5,000 contactless limit, "৳0 to open", "no annual fee for
+  the first year", branch and country counts, and all offers are illustrative.
+  Several are regulated claims — replace with figures Dhaka Bank can
+  substantiate and has approved.
+- Store links are inert `#` hrefs.
+
+The footer carries a disclaimer noting this is a concept site. Remove it once
+the above is real and the project is officially sanctioned.
