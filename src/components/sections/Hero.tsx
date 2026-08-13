@@ -88,7 +88,10 @@ export default function Hero() {
     <section
       ref={root}
       id="top"
-      className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden pb-16 pt-28 sm:pt-32"
+      // Symmetric, nav-derived padding. This was pt-28 against pb-16, so
+      // `justify-center` centred the content inside a lopsided box and pushed
+      // it down — that offset is what read as a gap above the first section.
+      className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden pb-[var(--nav-h)] pt-[var(--nav-h)]"
     >
       <div className="h-stage shell relative">
         <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-6">

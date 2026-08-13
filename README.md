@@ -107,12 +107,44 @@ journey in `Atmosphere`.
 
 ## Deploying to Vercel
 
-Zero config.
+Import the repo and **change nothing**. The defaults are correct:
 
-```bash
-npm i -g vercel
-vercel --prod
-```
+| Setting | Value |
+|---|---|
+| Framework Preset | **Next.js** (auto-detected — do not pick "Other") |
+| Root Directory | `./` |
+| Build Command | *leave empty* (`next build`) |
+| **Output Directory** | **leave empty** |
+| Install Command | *leave empty* (`npm install`) |
+| Node.js Version | 22.x |
+| Environment Variables | none required |
+
+### If the deployed site renders as unstyled text
+
+That means `/_next/static/…` is 404ing. Open DevTools → Network on the
+deployed URL and reload; if the `.css` request is red, it is one of these, in
+order of likelihood:
+
+1. **Output Directory is set** to `.next` or `out`. This is the usual cause.
+   Setting it makes Vercel serve the folder as a plain static site, so the HTML
+   is returned but the Next.js asset routes never get wired up. Clear the field
+   and redeploy.
+2. **Framework Preset is "Other"** instead of Next.js — same result, same fix.
+3. **The build failed.** Vercel keeps serving the last *successful* deployment,
+   so a broken build looks like a stale or half-working site. Check the build
+   log on the deployment.
+4. `output: "export"` added to `next.config.ts`. This project doesn't need it.
+
+Note that a `192.168.x.x` address is your local dev server and is reachable
+only from your own network — it is never the deployed site. If people on your
+LAN see a working page and people outside don't, they are looking at two
+different things.
+
+### Custom domain
+
+Set `NEXT_PUBLIC_SITE_URL=https://yourdomain.com` in Vercel's environment
+variables so Open Graph tags use it. Without it the site falls back to Vercel's
+`VERCEL_PROJECT_PRODUCTION_URL`, which is already correct for `*.vercel.app`.
 
 ## Before this goes live
 

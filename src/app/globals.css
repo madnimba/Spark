@@ -40,6 +40,15 @@
   /* Layout */
   --gutter: clamp(1.15rem, 5vw, 4.5rem);
   --maxw: 84rem;
+  /* Height the fixed nav actually occupies, including its top margin.
+     Sections offset against this instead of guessing at a padding value. */
+  --nav-h: 4.75rem;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --nav-h: 5.25rem;
+  }
 }
 
 @theme inline {
@@ -107,6 +116,11 @@ html.lenis body {
 }
 .lenis.lenis-stopped {
   overflow: hidden;
+}
+
+/* Anchor targets must clear the fixed nav, or #card lands under it */
+section[id] {
+  scroll-margin-top: var(--nav-h);
 }
 
 ::selection {

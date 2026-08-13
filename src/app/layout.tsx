@@ -22,7 +22,17 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const SITE = "https://spark-card.vercel.app";
+/**
+ * Absolute base for OG/Twitter tags. Vercel injects
+ * `VERCEL_PROJECT_PRODUCTION_URL` at build time, so the deployed site gets the
+ * right absolute URLs without anyone hardcoding a domain. Set
+ * NEXT_PUBLIC_SITE_URL once a custom domain is attached.
+ */
+const SITE =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3000");
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
