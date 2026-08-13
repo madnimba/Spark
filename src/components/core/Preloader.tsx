@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { gsap, useIsoLayoutEffect, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, ScrollTrigger, useIsoLayoutEffect, prefersReducedMotion } from "@/lib/gsap";
 import { emitReady } from "@/lib/bus";
 import { useSmoothScroll } from "./SmoothScroll";
 import Logo from "./Logo";
@@ -25,9 +25,18 @@ export default function Preloader() {
     }
 
     document.documentElement.style.overflow = "hidden";
+
     const unlock = () => {
       document.documentElement.style.overflow = "";
       lenisRef.current?.start();
+
+      // Critical: while the intro was up the document could not scroll, so
+      // every ScrollTrigger created in that window measured a zero-height
+      // scroll range. A scrubbed trigger whose end <= start sits at progress
+      // 1, which left the hero stage stuck at its faded-out exit state — the
+      // copy appeared then vanished and the card looked like it never
+      // rendered. Re-measure on the next frame, once layout has settled.
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     };
     window.scrollTo(0, 0);
 

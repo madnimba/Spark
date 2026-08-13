@@ -1,165 +1,110 @@
 "use client";
 
 /* =============================================================================
-   Spark card designs. Each entry is a complete skin — face art, ink colours
-   and the swatch shown in the picker — so adding a seventh design means adding
-   one object here and nothing else.
+   Spark card designs.
+
+   The front of each card is supplied artwork — a full vertical face with the
+   chip, contactless mark, Spark lockup and Mastercard already drawn in. Drop
+   the files into `public/cards/` using the `image` filenames below.
+
+   Until a file exists the `fallback` gradient renders in its place, so the
+   picker is never broken while art is still being produced.
+
+   The back of each card is generated here to match its front.
    ============================================================================= */
 
 export type Design = {
   id: string;
   name: string;
   tag: string;
-  /** Two colours for the picker swatch. */
-  swatch: [string, string];
-  /** CSS background for the card face. */
-  bg: string;
-  /** Art layered over the background. */
-  art: React.ReactNode;
+  /** Artwork path under /public. */
+  image: string;
+  /** CSS background shown until the artwork loads (or if it's missing). */
+  fallback: string;
+  /** Back-of-card field, tuned to the front. */
+  back: string;
+  /** Ink used on the back. */
   ink: string;
   inkSoft: string;
-  /** Colour of the small Spark bolt on the face. */
+  /** Colour of the Spark bolt on the back. */
   bolt: string;
-  chip: "gold" | "steel";
+  /** Two colours representing the card in compact UI. */
+  swatch: [string, string];
 };
-
-const Bolt = ({ className, fill, opacity = 1 }: { className?: string; fill: string; opacity?: number }) => (
-  <svg viewBox="0 0 40 64" className={className} aria-hidden style={{ opacity }}>
-    <path d="M24 0 2 36h13L14 64 38 26H24l6-26Z" fill={fill} />
-  </svg>
-);
-
-const Burst = ({ className, fill, opacity = 1 }: { className?: string; fill: string; opacity?: number }) => {
-  const pts: string[] = [];
-  for (let i = 0; i < 24; i++) {
-    const rad = i % 2 === 0 ? 100 : 58;
-    const deg = (i / 24) * 360 - 90;
-    const x = 100 + Math.cos((deg * Math.PI) / 180) * rad;
-    const y = 100 + Math.sin((deg * Math.PI) / 180) * rad;
-    pts.push(`${Math.round(x * 100) / 100},${Math.round(y * 100) / 100}`);
-  }
-  return (
-    <svg viewBox="0 0 200 200" className={className} aria-hidden style={{ opacity }}>
-      <polygon points={pts.join(" ")} fill={fill} />
-    </svg>
-  );
-};
-
-const Dots = ({ color, opacity = 0.5 }: { color: string; opacity?: number }) => (
-  <div
-    className="absolute inset-0"
-    style={{
-      opacity,
-      backgroundImage: `radial-gradient(${color} 1.4px, transparent 1.5px)`,
-      backgroundSize: "9px 9px",
-    }}
-  />
-);
 
 export const DESIGNS: Design[] = [
   {
-    id: "voltage",
-    name: "Voltage",
-    tag: "The original",
-    swatch: ["#1f6fea", "#ffe01b"],
-    bg: "linear-gradient(135deg,#2b7cff 0%,#1450c8 55%,#0c3aa0 100%)",
+    id: "brunch",
+    name: "Brunch",
+    tag: "Runs on caffeine",
+    image: "/cards/brunch.jpg",
+    fallback: "linear-gradient(160deg,#FFD400 0%,#FFC400 55%,#F5A300 100%)",
+    back: "linear-gradient(160deg,#FFD400 0%,#F26DA8 78%,#E0357F 100%)",
+    ink: "#2B1206",
+    inkSoft: "rgba(43,18,6,0.62)",
+    bolt: "#2B1206",
+    swatch: ["#FFD400", "#EE3D8F"],
+  },
+  {
+    id: "asterisk",
+    name: "Asterisk",
+    tag: "Impossible to ignore",
+    image: "/cards/asterisk.jpg",
+    fallback: "linear-gradient(160deg,#A99BF5 0%,#9B8BF0 50%,#F4551A 100%)",
+    back: "linear-gradient(160deg,#A99BF5 0%,#8C7BEC 60%,#F4551A 100%)",
     ink: "#ffffff",
     inkSoft: "rgba(255,255,255,0.72)",
-    bolt: "#ffe01b",
-    chip: "gold",
-    art: (
-      <>
-        <Bolt className="absolute -right-[6%] top-[-14%] h-[125%] w-auto" fill="#ffe01b" opacity={0.22} />
-        <div className="absolute inset-0 [background:repeating-linear-gradient(115deg,rgba(70,224,255,0.16)_0_2px,transparent_2px_16px)]" />
-      </>
-    ),
+    bolt: "#ffffff",
+    swatch: ["#A99BF5", "#F4551A"],
   },
   {
-    id: "bubblegum",
-    name: "Bubblegum",
-    tag: "Loud on purpose",
-    swatch: ["#ee1b7c", "#ffe01b"],
-    bg: "linear-gradient(145deg,#ff3d96 0%,#ee1b7c 48%,#a80f57 100%)",
+    id: "bolt",
+    name: "Bolt",
+    tag: "The original",
+    image: "/cards/bolt.jpg",
+    fallback: "linear-gradient(160deg,#3B2BF0 0%,#3326E0 55%,#22D6B4 100%)",
+    back: "linear-gradient(160deg,#3B2BF0 0%,#2A1FD4 60%,#22D6B4 100%)",
     ink: "#ffffff",
-    inkSoft: "rgba(255,255,255,0.75)",
-    bolt: "#ffe01b",
-    chip: "gold",
-    art: (
-      <>
-        <Dots color="rgba(255,255,255,0.55)" opacity={0.35} />
-        <Burst className="absolute -left-[18%] -top-[42%] h-[190%] w-auto" fill="#ffe01b" opacity={0.16} />
-      </>
-    ),
+    inkSoft: "rgba(255,255,255,0.7)",
+    bolt: "#2EE7C4",
+    swatch: ["#3B2BF0", "#2EE7C4"],
   },
   {
-    id: "sunburst",
-    name: "Sunburst",
-    tag: "Impossible to lose",
-    swatch: ["#ffe01b", "#1f6fea"],
-    bg: "linear-gradient(135deg,#fff06b 0%,#ffe01b 45%,#f5b800 100%)",
-    ink: "#041f5c",
-    inkSoft: "rgba(4,31,92,0.66)",
-    bolt: "#1f6fea",
-    chip: "steel",
-    art: (
-      <>
-        <Burst className="absolute -right-[24%] -top-[52%] h-[210%] w-auto" fill="#1f6fea" opacity={0.14} />
-        <Dots color="rgba(4,31,92,0.45)" opacity={0.22} />
-      </>
-    ),
-  },
-  {
-    id: "midnight",
-    name: "Midnight",
+    id: "aurora",
+    name: "Aurora",
     tag: "Quietly expensive",
-    swatch: ["#041f5c", "#46e0ff"],
-    bg: "linear-gradient(150deg,#0b2a6e 0%,#041f5c 55%,#020f33 100%)",
+    image: "/cards/aurora.jpg",
+    fallback: "linear-gradient(165deg,#0A0A2E 0%,#3E6BFF 45%,#A855F7 100%)",
+    back: "linear-gradient(165deg,#0A0A2E 0%,#2A2E7A 55%,#8B4FE0 100%)",
     ink: "#ffffff",
     inkSoft: "rgba(255,255,255,0.62)",
-    bolt: "#46e0ff",
-    chip: "steel",
-    art: (
-      <>
-        <div className="absolute inset-0 [background-image:linear-gradient(rgba(70,224,255,0.14)_1px,transparent_1px),linear-gradient(90deg,rgba(70,224,255,0.14)_1px,transparent_1px)] [background-size:26px_26px]" />
-        <div className="absolute inset-0 [background:radial-gradient(circle_at_78%_18%,rgba(70,224,255,0.4),transparent_46%)]" />
-      </>
-    ),
+    bolt: "#61B6FF",
+    swatch: ["#0A0A2E", "#A855F7"],
   },
   {
-    id: "comic",
-    name: "Comic",
-    tag: "Pow.",
-    swatch: ["#ffffff", "#ee1b7c"],
-    bg: "linear-gradient(135deg,#ffffff 0%,#eef4ff 60%,#dbe7ff 100%)",
-    ink: "#041f5c",
-    inkSoft: "rgba(4,31,92,0.6)",
-    bolt: "#ee1b7c",
-    chip: "gold",
-    art: (
-      <>
-        <Dots color="rgba(238,27,124,0.6)" opacity={0.3} />
-        <Burst className="absolute -left-[14%] -bottom-[62%] h-[190%] w-auto" fill="#ffe01b" opacity={0.55} />
-        <div className="absolute inset-0 border-[3px] border-[#041f5c]/85" style={{ borderRadius: "inherit" }} />
-      </>
-    ),
-  },
-  {
-    id: "heatwave",
-    name: "Heatwave",
-    tag: "Runs hot",
-    swatch: ["#ff7a1a", "#ee1b7c"],
-    bg: "linear-gradient(140deg,#ffb020 0%,#ff7a1a 42%,#ee1b7c 100%)",
+    id: "blush",
+    name: "Blush",
+    tag: "Soft launch",
+    image: "/cards/blush.jpg",
+    fallback: "linear-gradient(160deg,#F472A8 0%,#8B5CF6 55%,#6D4DE8 100%)",
+    back: "linear-gradient(160deg,#F472A8 0%,#8B5CF6 55%,#5B3FE0 100%)",
     ink: "#ffffff",
-    inkSoft: "rgba(255,255,255,0.75)",
+    inkSoft: "rgba(255,255,255,0.72)",
     bolt: "#ffffff",
-    chip: "gold",
-    art: (
-      <>
-        <div className="absolute inset-0 [background:repeating-linear-gradient(-28deg,rgba(255,255,255,0.14)_0_10px,transparent_10px_30px)]" />
-        <Bolt className="absolute -left-[4%] top-[8%] h-[95%] w-auto" fill="#ffffff" opacity={0.18} />
-      </>
-    ),
+    swatch: ["#F472A8", "#7C5CF5"],
+  },
+  {
+    id: "sprout",
+    name: "Sprout",
+    tag: "Fresh money",
+    image: "/cards/sprout.jpg",
+    fallback: "linear-gradient(160deg,#B6F24A 0%,#7EE87F 55%,#3FD9A4 100%)",
+    back: "linear-gradient(160deg,#DCF94A 0%,#7EE87F 55%,#31C79B 100%)",
+    ink: "#0C3A1E",
+    inkSoft: "rgba(12,58,30,0.6)",
+    bolt: "#0C3A1E",
+    swatch: ["#B6F24A", "#3FD9A4"],
   },
 ];
 
-export const DEFAULT_DESIGN = 0;
+export const DEFAULT_DESIGN = 2;

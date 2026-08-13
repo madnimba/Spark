@@ -1,81 +1,44 @@
 "use client";
 
+import { useState } from "react";
 import type { Design } from "./designs";
 
 /**
  * A single card face.
  *
- * All type is sized in `cqw` (percent of the card's own width) with the root
- * declared as a container. That means one component renders correctly as a
- * 40px picker thumbnail and as a 600px hero card with no breakpoints — which
- * matters here because the same card appears at wildly different sizes.
+ * The front is supplied artwork — a complete vertical face with chip,
+ * contactless mark, Spark lockup and Mastercard already drawn in — so nothing
+ * is overlaid on it beyond the holder's name. The back is generated to match.
+ *
+ * All type is sized in `cqw` (percent of the card's own width) against a
+ * declared container, so one component renders correctly as a 40px picker
+ * thumbnail and as a 340px hero card with no breakpoints.
  */
 
-function Chip({ tone }: { tone: "gold" | "steel" }) {
-  const bg =
-    tone === "gold"
-      ? "linear-gradient(135deg,#f7dc9a,#c9a24d 45%,#fbeec2 70%,#b8902f)"
-      : "linear-gradient(135deg,#e8eef7,#9dabbd 45%,#f2f6fb 70%,#8593a6)";
-  return (
-    <div
-      className="relative overflow-hidden rounded-[1.2cqw]"
-      style={{ width: "13cqw", height: "9.6cqw", background: bg }}
-    >
-      <div className="absolute inset-0 [background-image:linear-gradient(90deg,rgba(0,0,0,0.3)_1px,transparent_1px),linear-gradient(rgba(0,0,0,0.3)_1px,transparent_1px)] [background-size:33%_50%]" />
-    </div>
-  );
-}
+/** Vertical card, matching the supplied artwork (1290 × 2048). */
+export const CARD_RATIO = "1290 / 2048";
 
-function Contactless({ color }: { color: string }) {
+function Mastercard({ size = "22cqw" }: { size?: string }) {
   return (
-    <svg viewBox="0 0 24 24" style={{ width: "7cqw", height: "7cqw" }} fill="none" aria-hidden>
-      <path
-        d="M7 8a7 7 0 0 1 0 8M11 5.5a11 11 0 0 1 0 13M15 3a15 15 0 0 1 0 18"
-        stroke={color}
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
+    <svg viewBox="0 0 48 30" style={{ width: size, height: "auto" }} aria-label="Mastercard" role="img">
+      <circle cx="18" cy="15" r="14" fill="#EB001B" />
+      <circle cx="30" cy="15" r="14" fill="#F79E1B" />
+      <path d="M24 4.4a13.96 13.96 0 0 0 0 21.2 13.96 13.96 0 0 0 0-21.2Z" fill="#FF5F00" />
     </svg>
   );
 }
 
-/** Mastercard's interlocking discs. Spark runs on the Mastercard network. */
-function Mastercard() {
+function SparkLockup({ color }: { color: string }) {
   return (
-    <span className="inline-flex flex-col items-end" style={{ gap: "0.8cqw" }}>
-      <svg
-        viewBox="0 0 48 30"
-        style={{ width: "17cqw", height: "auto" }}
-        aria-label="Mastercard"
-        role="img"
-      >
-        <circle cx="18" cy="15" r="14" fill="#EB001B" />
-        <circle cx="30" cy="15" r="14" fill="#F79E1B" />
-        <path
-          d="M24 4.4a13.96 13.96 0 0 0 0 21.2 13.96 13.96 0 0 0 0-21.2Z"
-          fill="#FF5F00"
-        />
-      </svg>
-    </span>
-  );
-}
-
-function SparkMark({ color, scale = 1 }: { color: string; scale?: number }) {
-  return (
-    <span className="inline-flex items-center" style={{ gap: "1.2cqw" }}>
-      <svg viewBox="0 0 40 64" style={{ height: `${7 * scale}cqw`, width: "auto" }} aria-hidden>
+    <span className="inline-flex items-end" style={{ gap: "1.6cqw" }}>
+      <svg viewBox="0 0 40 64" style={{ height: "11cqw", width: "auto" }} aria-hidden>
         <path d="M24 0 2 36h13L14 64 38 26H24l6-26Z" fill={color} />
       </svg>
-      <span
-        style={{
-          color,
-          fontSize: `${6.6 * scale}cqw`,
-          fontWeight: 800,
-          letterSpacing: "-0.03em",
-          lineHeight: 1,
-        }}
-      >
-        Spark
+      <span className="flex flex-col leading-none" style={{ color }}>
+        <span style={{ fontSize: "9.5cqw", fontWeight: 800, letterSpacing: "-0.035em" }}>Spark</span>
+        <span style={{ fontSize: "5.4cqw", fontWeight: 500, letterSpacing: "0.01em", marginTop: "0.6cqw" }}>
+          prepaid
+        </span>
       </span>
     </span>
   );
@@ -84,137 +47,92 @@ function SparkMark({ color, scale = 1 }: { color: string; scale?: number }) {
 export default function SparkCard({
   design,
   face = "front",
-  name = "YOUR NAME",
+  name = "",
   className = "",
 }: {
   design: Design;
   face?: "front" | "back";
+  /** Printed small along the bottom of the front, if supplied. */
   name?: string;
   className?: string;
 }) {
+  // The artwork may not be in /public yet. Until it loads, the design's own
+  // fallback gradient stands in, so nothing ever renders as a broken image.
+  const [artOk, setArtOk] = useState(true);
+
   return (
     <div
-      className={`relative overflow-hidden rounded-[4.2cqw] ${className}`}
+      className={`relative overflow-hidden ${className}`}
       style={{
         containerType: "inline-size",
-        aspectRatio: "1.586 / 1",
-        background: design.bg,
-        boxShadow:
-          "0 2cqw 6cqw rgba(4,31,92,0.45), inset 0 0 0 0.35cqw rgba(255,255,255,0.16)",
+        aspectRatio: CARD_RATIO,
+        borderRadius: "7cqw",
+        background: design.fallback,
+        boxShadow: "0 3cqw 9cqw rgba(4,31,92,0.45), inset 0 0 0 0.4cqw rgba(255,255,255,0.18)",
       }}
     >
-      {/* design art */}
-      <div className="pointer-events-none absolute inset-0">{design.art}</div>
-
-      {/* sheen */}
-      <div className="pointer-events-none absolute inset-0 [background:linear-gradient(118deg,transparent_36%,rgba(255,255,255,0.16)_47%,transparent_58%)]" />
-
       {face === "front" ? (
-        <div
-          className="relative flex h-full flex-col justify-between"
-          style={{ padding: "6.5cqw" }}
-        >
-          <div className="flex items-start justify-between">
-            <span
-              style={{
-                color: design.ink,
-                fontSize: "3.5cqw",
-                fontWeight: 800,
-                letterSpacing: "0.02em",
-                lineHeight: 1.1,
-              }}
-            >
-              DHAKA BANK
-              <span style={{ display: "block", fontSize: "2.1cqw", opacity: 0.65, letterSpacing: "0.16em" }}>
-                PLC.
-              </span>
-            </span>
-            <SparkMark color={design.bolt} />
-          </div>
+        <>
+          {artOk && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={design.image}
+              alt=""
+              onError={() => setArtOk(false)}
+              className="absolute inset-0 h-full w-full object-cover"
+              draggable={false}
+            />
+          )}
 
-          <div className="flex items-end" style={{ gap: "4cqw" }}>
-            <Chip tone={design.chip} />
-            <Contactless color={design.inkSoft} />
-          </div>
-
-          <div>
+          {/* The artwork carries every mark already; only the holder's name is
+              added, and only once they've typed one. */}
+          {name.trim() && (
             <p
+              className="absolute"
               style={{
-                color: design.ink,
-                fontFamily: "var(--font-mono)",
-                fontSize: "6.4cqw",
-                letterSpacing: "0.11em",
-                lineHeight: 1,
+                left: "9cqw",
+                bottom: "3.5cqw",
+                color: "#ffffff",
+                fontSize: "4cqw",
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                textShadow: "0 0.4cqw 1.6cqw rgba(0,0,0,0.45)",
               }}
             >
-              •••• •••• •••• 8421
+              {name.trim()}
             </p>
+          )}
 
-            <div className="flex items-end justify-between" style={{ marginTop: "4.4cqw" }}>
-              <div>
-                <p
-                  style={{
-                    color: design.inkSoft,
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "2.1cqw",
-                    letterSpacing: "0.2em",
-                  }}
-                >
-                  CARDHOLDER
-                </p>
-                <p
-                  style={{
-                    color: design.ink,
-                    fontSize: "3.5cqw",
-                    fontWeight: 700,
-                    letterSpacing: "0.08em",
-                    marginTop: "0.8cqw",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {name}
-                </p>
-              </div>
-
-              <div className="flex flex-col items-end">
-                <p
-                  style={{
-                    color: design.inkSoft,
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "2.1cqw",
-                    letterSpacing: "0.2em",
-                    marginBottom: "1cqw",
-                  }}
-                >
-                  DUAL CURRENCY
-                </p>
-                <Mastercard />
-              </div>
-            </div>
-          </div>
-        </div>
+          <div className="pointer-events-none absolute inset-0 [background:linear-gradient(118deg,transparent_38%,rgba(255,255,255,0.14)_47%,transparent_57%)]" />
+        </>
       ) : (
-        <div className="relative flex h-full flex-col justify-between">
-          <div style={{ height: "14cqw", marginTop: "7cqw", background: "rgba(0,0,0,0.82)" }} />
+        <div
+          className="relative flex h-full flex-col"
+          style={{ background: design.back }}
+        >
+          {/* magstripe */}
+          <div style={{ marginTop: "11cqw", height: "17cqw", background: "rgba(0,0,0,0.82)" }} />
 
-          <div style={{ paddingInline: "6.5cqw" }}>
-            <div className="flex items-center" style={{ gap: "2.5cqw" }}>
+          {/* signature panel + CVV */}
+          <div style={{ paddingInline: "9cqw", marginTop: "7cqw" }}>
+            <div className="flex items-center" style={{ gap: "3cqw" }}>
               <div
                 className="flex-1"
-                style={{ height: "8.5cqw", borderRadius: "1cqw", background: "rgba(255,255,255,0.9)" }}
+                style={{ height: "11cqw", borderRadius: "1.6cqw", background: "rgba(255,255,255,0.92)" }}
               />
               <div
                 className="flex items-center justify-center"
                 style={{
-                  height: "8.5cqw",
-                  paddingInline: "3cqw",
-                  borderRadius: "1cqw",
-                  background: "rgba(255,255,255,0.9)",
-                  color: "#041f5c",
+                  height: "11cqw",
+                  paddingInline: "4cqw",
+                  borderRadius: "1.6cqw",
+                  background: "rgba(255,255,255,0.92)",
+                  color: "#0b1b3a",
                   fontFamily: "var(--font-mono)",
-                  fontSize: "3.4cqw",
+                  fontSize: "4.4cqw",
                   fontWeight: 700,
-                  letterSpacing: "0.14em",
+                  letterSpacing: "0.16em",
                 }}
               >
                 •••
@@ -225,33 +143,38 @@ export default function SparkCard({
               style={{
                 color: design.inkSoft,
                 fontFamily: "var(--font-mono)",
-                fontSize: "2.15cqw",
-                lineHeight: 1.65,
-                letterSpacing: "0.06em",
-                marginTop: "3.5cqw",
+                fontSize: "3.1cqw",
+                lineHeight: 1.7,
+                letterSpacing: "0.05em",
+                marginTop: "5cqw",
               }}
             >
-              ACTIVATE AND SET YOUR PIN DIGITALLY. RELOAD VIA THE GO PLUS APP,
-              BEFTN, ANY BRANCH OR A CRM. DUAL CURRENCY, HOME AND AWAY.
+              ACTIVATE AND SET YOUR PIN IN THE GO PLUS APP. RELOAD VIA GO PLUS,
+              BEFTN, ANY BRANCH OR A CRM. PREPAID · DUAL CURRENCY.
             </p>
-          </div>
 
-          <div
-            className="flex items-end justify-between"
-            style={{ padding: "6.5cqw" }}
-          >
             <p
               style={{
                 color: design.inkSoft,
                 fontFamily: "var(--font-mono)",
-                fontSize: "2.4cqw",
-                letterSpacing: "0.18em",
+                fontSize: "3.1cqw",
+                letterSpacing: "0.16em",
+                marginTop: "4cqw",
               }}
             >
-              24/7 · 16474
+              LOST OR STOLEN · 16474
             </p>
-            <SparkMark color={design.bolt} scale={0.82} />
           </div>
+
+          <div
+            className="mt-auto flex items-end justify-between"
+            style={{ padding: "9cqw" }}
+          >
+            <SparkLockup color={design.bolt} />
+            <Mastercard size="20cqw" />
+          </div>
+
+          <div className="pointer-events-none absolute inset-0 [background:linear-gradient(118deg,transparent_40%,rgba(255,255,255,0.1)_48%,transparent_58%)]" />
         </div>
       )}
     </div>

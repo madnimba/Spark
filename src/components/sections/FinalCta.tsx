@@ -85,7 +85,7 @@ export default function FinalCta() {
             </p>
 
             <div className="mt-8 flex justify-center">
-              <Button href="#apply" tone="yellow">
+              <Button href="/apply" tone="yellow">
                 Apply now →
               </Button>
             </div>

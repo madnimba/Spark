@@ -7,8 +7,6 @@ import { DESIGNS } from "../visuals/designs";
 import SparkCard from "../visuals/SparkCard";
 import Button from "../ui/Button";
 
-const LIFE = ["Travel", "Music", "Food", "Gadgets", "Education", "Fashion", "Entertainment"];
-
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
 
@@ -31,13 +29,27 @@ export default function Hero() {
         // after the context function returned — without it these selectors go
         // global and the animations aren't tracked for cleanup.
         self.add(() => {
+          // Reveal BEFORE the timeline is built, not as its first step.
+          //
+          // `from()` tweens render immediately on creation and record the
+          // target's value *at that moment* as their destination. With the
+          // reveal sitting inside the timeline, these targets were still at
+          // autoAlpha 0 when the from-tweens were constructed, so 0 became
+          // their end value — the copy, buttons and card animated in and then
+          // straight back out. Hoisting the set fixes the captured value.
+          gsap.set(".h-anim", { autoAlpha: 1 });
+
           // The reveal must survive anything going wrong below it. If a tween
           // throws, the copy still ends up visible rather than stuck at zero
           // opacity, which is the one failure mode that loses the whole page.
           try {
-            const tl = gsap.timeline({ defaults: { ease: "expo" } });
-            tl.set(".h-anim", { autoAlpha: 1 })
-              .from(".h-kicker", { yPercent: 130, duration: 0.9 })
+            const tl = gsap.timeline({
+              defaults: { ease: "expo" },
+              // Hard guarantee: whatever the tweens did, everything is visible
+              // once they finish.
+              onComplete: () => gsap.set(".h-anim", { autoAlpha: 1 }),
+            });
+            tl.from(".h-kicker", { yPercent: 130, duration: 0.9 })
               .from(".h-l1", { yPercent: 115, duration: 1.1 }, "-=0.55")
               .from(
                 ".h-l2",
@@ -45,8 +57,7 @@ export default function Hero() {
                 "-=0.85"
               )
               .from(".h-sub", { y: 24, autoAlpha: 0, duration: 0.9 }, "-=0.7")
-              .from(".h-tag", { y: 16, autoAlpha: 0, duration: 0.6, stagger: 0.05 }, "-=0.7")
-              .from(".h-cta", { y: 22, autoAlpha: 0, duration: 0.8, stagger: 0.08 }, "-=0.5")
+              .from(".h-cta", { y: 22, autoAlpha: 0, duration: 0.8, stagger: 0.08 }, "-=0.6")
               .from(
                 ".h-card",
                 { yPercent: 26, rotate: 14, scale: 0.8, autoAlpha: 0, duration: 1.4 },
@@ -84,11 +95,12 @@ export default function Hero() {
       };
       window.addEventListener("pointermove", onMove, { passive: true });
 
-      /* --- scroll exit: the hero recedes exactly as it clears the screen --- */
+      /* --- scroll exit ---
+         Parallax only. No opacity and no scale: the copy, buttons and card
+         must stay fully visible for as long as they are on screen. Anything
+         that dims them reads as content breaking rather than as a transition. */
       gsap.to(".h-stage", {
-        scale: 0.88,
-        y: -30,
-        autoAlpha: 0.05,
+        y: -50,
         ease: "none",
         scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: 0.8 },
       });
@@ -134,39 +146,31 @@ export default function Hero() {
               </span>
             </h1>
 
-            <p className="h-anim h-sub t-body mx-auto mt-7 max-w-[42ch] lg:mx-0">
-              Why do you need another card? Because your life has its own
-              rhythm — and your card should fit right in.
+            {/* One hook, nothing more. The argument for the card lives in the
+                Why Spark section directly below; repeating it here just makes
+                the visitor read the same sentence twice. */}
+            <p className="h-anim h-sub mx-auto mt-7 max-w-[20ch] text-[clamp(1.15rem,5vw,1.7rem)] font-extrabold uppercase leading-[1.15] tracking-tight text-white lg:mx-0">
+              One prepaid card.
+              <br />
+              <span className="text-yellow">Every version of you.</span>
             </p>
-
-            {/* the seven worlds Spark is built around */}
-            <ul className="mt-5 flex flex-wrap justify-center gap-2 lg:justify-start">
-              {LIFE.map((w) => (
-                <li
-                  key={w}
-                  className="h-anim h-tag rounded-full border-2 border-white/45 px-3 py-1 text-[12px] font-bold uppercase tracking-tight text-white/85 transition-colors hover:border-yellow hover:text-yellow sm:text-[13px]"
-                >
-                  {w}
-                </li>
-              ))}
-            </ul>
 
             <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
               <div className="h-anim h-cta">
-                <Button href="#why" tone="yellow">
-                  Discover Spark →
+                <Button href="/apply" tone="yellow">
+                  Apply now →
                 </Button>
               </div>
               <div className="h-anim h-cta">
-                <Button href="#apply" tone="outline">
-                  Apply now
+                <Button href="#why" tone="outline">
+                  Discover Spark
                 </Button>
               </div>
             </div>
           </div>
 
           {/* ---------------------------------------------------- card --- */}
-          <div className="persp relative mx-auto w-full max-w-[min(78vw,420px)]">
+          <div className="persp relative mx-auto w-full max-w-[min(52vw,250px)]">
             <div className="h-anim h-card tf3d relative">
               <div className="h-card-inner tf3d rotate-[-8deg]">
                 <SparkCard design={DESIGNS[0]} face="front" />

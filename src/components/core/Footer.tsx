@@ -2,10 +2,39 @@
 
 import Logo, { BankMark } from "./Logo";
 
+/**
+ * The Spark column carries real section anchors. With the mobile menu replaced
+ * by the profile button, this is the only in-page navigation a phone has.
+ */
 const COLS = [
-  { h: "Spark", links: ["The card", "Designs", "Perks", "Fees & limits"] },
-  { h: "Support", links: ["Help centre", "Freeze a card", "Report fraud", "Contact"] },
-  { h: "Dhaka Bank", links: ["About", "Branches & ATMs", "Careers", "Privacy"] },
+  {
+    h: "Spark",
+    links: [
+      { l: "Why Spark", href: "#why" },
+      { l: "The card", href: "#card" },
+      { l: "Lifestyles", href: "#lifestyles" },
+      { l: "Benefits", href: "#lifestyle" },
+      { l: "How to apply", href: "#get" },
+    ],
+  },
+  {
+    h: "Your account",
+    links: [
+      { l: "Apply now", href: "/apply" },
+      { l: "Sign in", href: "/signin" },
+      { l: "Dashboard", href: "/account" },
+      { l: "Help centre", href: "#" },
+    ],
+  },
+  {
+    h: "Dhaka Bank",
+    links: [
+      { l: "About", href: "#" },
+      { l: "Branches & ATMs", href: "#" },
+      { l: "Careers", href: "#" },
+      { l: "Privacy", href: "#" },
+    ],
+  },
 ];
 
 export default function Footer() {
@@ -30,13 +59,13 @@ export default function Footer() {
                 <p className="t-label text-[9px]! text-yellow">{c.h}</p>
                 <ul className="mt-3 flex flex-col gap-2">
                   {c.links.map((l) => (
-                    <li key={l}>
+                    <li key={l.l}>
                       <a
-                        href="#"
+                        href={l.href}
                         data-cursor="link"
                         className="inline-block py-1 text-[0.9rem] text-white/65 transition-colors hover:text-yellow"
                       >
-                        {l}
+                        {l.l}
                       </a>
                     </li>
                   ))}

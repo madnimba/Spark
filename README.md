@@ -45,6 +45,44 @@ npx kill-port 3000
 6. **Everywhere** — where it works, with a velocity-reactive marquee
 7. **FinalCta** — store badges
 
+## Routes
+
+| Route | What it is |
+|---|---|
+| `/` | The landing page |
+| `/apply` | Two-step application — six details, then five document slots |
+| `/pay` | **Mock** payment gateway (bKash, Nagad, Rocket, card) |
+
+### The application form
+
+Files chosen in `/apply` are held in component state and **never uploaded** —
+nothing leaves the browser and nothing is stored. Object URLs behind the
+thumbnails are revoked on replace and clear, so picking several large photos
+doesn't leak memory for the life of the tab. Only the applicant's first name
+and chosen card design are handed to `/pay`, via `sessionStorage`, so the
+payment screen can address them by name.
+
+### The payment page is a mock
+
+`/pay` imitates a gateway for design purposes. No network request is made,
+nothing is validated against any provider, and nothing is persisted — the
+"payment" is a timed animation. `/pay`, `/signin` and `/account` are all
+`robots: noindex, nofollow`, which is also what you'd want for these routes on
+a real site.
+
+### Sign-in and the dashboard
+
+`/signin` takes a mobile number and a 6-digit code; **any 6 digits are
+accepted**. There is no length or operator-prefix rule on phone numbers
+anywhere in the flow. The "session" is a phone number in `localStorage` — it
+gates `/account` so the flow can be demonstrated, and is not a security
+boundary.
+
+`/account` renders fixture data from `src/lib/account-data.ts`. The figures are
+internally consistent: the category rows sum to the month's spend, and each
+row's saving is its spend × its rate. Keep those identities true if you edit
+them — a dashboard whose totals don't reconcile reads as broken.
+
 ## Mobile-first decisions
 
 These are deliberate, and reversing them will make the phone experience worse.
@@ -155,10 +193,16 @@ The site uses **placeholder brand assets and illustrative content**:
   the official vectors.
 - Colours are sampled from the supplied key visuals by eye, not from a brand
   guide. Check them against the real spec.
-- Card designs, the ৳5,000 contactless limit, "৳0 to open", "no annual fee for
-  the first year", branch and country counts, and all offers are illustrative.
-  Several are regulated claims — replace with figures Dhaka Bank can
-  substantiate and has approved.
+- The six card designs are invented. The benefit copy (4× Balaka Express Lounge
+  access, USD 12,000 limit, 0% markup, dual currency, 9,500+ Mastercard partner
+  outlets, IELTS/TOEFL/SAT/GMAT discounts, annual charge waived at 12 uses) came
+  from the campaign brief — these are regulated claims, so confirm each one is
+  approved before launch.
+- The **৳575 issuance fee on `/pay` is a placeholder.** Replace it with the real
+  figure.
+- bKash, Nagad and Rocket are represented by approximated brand colours and
+  generic icons, not their real marks. Get permission and proper assets before
+  using them publicly.
 - Store links are inert `#` hrefs.
 
 The footer carries a disclaimer noting this is a concept site. Remove it once

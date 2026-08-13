@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Magnetic from "./Magnetic";
 
 type Tone = "yellow" | "pink" | "white" | "outline";
@@ -53,8 +54,17 @@ export default function Button({
     </>
   );
 
-  const node = href ? (
-    <a href={href} className={cls} data-cursor="link" {...rest}>
+  // A leading "/" means another route, so it goes through next/link for a
+  // client-side transition. Everything else is an in-page anchor, which Lenis
+  // intercepts to scroll with the site's easing.
+  const isRoute = href?.startsWith("/");
+
+  const node = isRoute ? (
+    <Link href={href!} className={cls} data-cursor="link" onClick={onClick} {...rest}>
+      {inner}
+    </Link>
+  ) : href ? (
+    <a href={href} className={cls} data-cursor="link" onClick={onClick} {...rest}>
       {inner}
     </a>
   ) : (

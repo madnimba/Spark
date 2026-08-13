@@ -3,7 +3,7 @@
 import { useRef, useState, useCallback } from "react";
 import { gsap, ScrollTrigger, useIsoLayoutEffect, prefersReducedMotion } from "@/lib/gsap";
 import { DESIGNS, DEFAULT_DESIGN } from "../visuals/designs";
-import SparkCard from "../visuals/SparkCard";
+import SparkCard, { CARD_RATIO } from "../visuals/SparkCard";
 
 /* --- physics constants, tuned by feel on a phone ------------------------- */
 const IDLE_SPIN = 0.28; // deg per 60fps frame ≈ one turn every ~21s
@@ -234,7 +234,7 @@ export default function CardStudio() {
         </div>
 
         {/* ------------------------------------------------ the big card -- */}
-        <div className="cs-stage persp relative mx-auto mt-10 w-full max-w-[min(92vw,560px)] sm:mt-14">
+        <div className="cs-stage persp relative mx-auto mt-10 w-full max-w-[min(62vw,320px)] sm:mt-14">
           <div ref={float} className="relative will-change-transform">
             <div
               ref={card}
@@ -256,7 +256,7 @@ export default function CardStudio() {
               {/* print flash */}
               <div
                 ref={flash}
-                className="pointer-events-none absolute inset-0 overflow-hidden rounded-[4.2cqw] opacity-0"
+                className="pointer-events-none absolute inset-0 overflow-hidden rounded-[7cqw] opacity-0"
                 style={{ containerType: "inline-size" }}
               >
                 <div className="h-full w-full [background:linear-gradient(105deg,transparent_38%,rgba(255,255,255,0.95)_50%,transparent_62%)]" />
@@ -297,16 +297,28 @@ export default function CardStudio() {
                 role="radio"
                 aria-checked={i === active}
                 aria-label={d.name}
-                className={`cs-swatch group relative aspect-[1.586/1] overflow-hidden rounded-xl transition-transform duration-300 active:scale-95 ${
+                className={`cs-swatch group relative overflow-hidden rounded-xl transition-transform duration-300 active:scale-95 ${
                   i === active
                     ? "ring-[3px] ring-yellow ring-offset-2 ring-offset-transparent"
                     : "ring-1 ring-white/35 hover:ring-white/80"
                 }`}
-                style={{ background: `linear-gradient(135deg, ${d.swatch[0]}, ${d.swatch[1]})` }}
+                style={{ aspectRatio: CARD_RATIO, background: d.fallback }}
               >
                 <span className="sr-only">{d.name}</span>
+                {/* The real artwork is the swatch. If it's missing the design's
+                    fallback gradient behind it still reads correctly. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={d.image}
+                  alt=""
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                  className="absolute inset-0 h-full w-full object-cover"
+                  draggable={false}
+                />
                 {i === active && (
-                  <span className="absolute bottom-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-yellow">
+                  <span className="absolute bottom-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-yellow ring-2 ring-blue-ink">
                     <svg viewBox="0 0 24 24" className="h-2.5 w-2.5" fill="none" stroke="#041f5c" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20 6 9 17l-5-5" />
                     </svg>

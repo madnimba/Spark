@@ -59,7 +59,7 @@ export default function HowTo() {
   }, []);
 
   return (
-    <section ref={root} id="apply" className="relative py-16 sm:py-24">
+    <section ref={root} id="get" className="relative py-16 sm:py-24">
       <div className="shell">
         <Depth variant="rise">
           <div className="mx-auto max-w-2xl text-center">
@@ -125,7 +125,7 @@ export default function HowTo() {
         </div>
 
         <div className="mt-10 flex justify-center">
-          <Button href="#download" tone="pink">
+          <Button href="/apply" tone="pink">
             Apply now →
           </Button>
         </div>

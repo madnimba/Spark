@@ -9,6 +9,7 @@ import Footer from "@/components/core/Footer";
 import Hero from "@/components/sections/Hero";
 import Intro from "@/components/sections/Intro";
 import CardStudio from "@/components/sections/CardStudio";
+import LifestyleOrbit from "@/components/sections/LifestyleOrbit";
 import Lifestyle from "@/components/sections/Lifestyle";
 import HowTo from "@/components/sections/HowTo";
 import Everywhere from "@/components/sections/Everywhere";
@@ -35,6 +36,8 @@ export default function Home() {
         <Intro />
         {/* 02 — the card itself: pick a design, throw it around */}
         <CardStudio />
+        {/* the lifestyle ring, straight off the back of the floating card */}
+        <LifestyleOrbit />
         {/* 03 — travel / everyday / plans. Deliberately after the card, so the
             product is on screen before the reasons to carry it. */}
         <Lifestyle />
