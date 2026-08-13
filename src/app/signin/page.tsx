@@ -45,12 +45,7 @@ export default function SignInPage() {
   }, [stage]);
 
   const sendOtp = () => {
-    // No length or operator-prefix rule — any number is accepted, it just has
-    // to be there.
-    if (!phone.replace(/\D/g, "")) {
-      setErr("Enter your mobile number.");
-      return;
-    }
+    // Optional by design — an empty number still moves to the code screen.
     setErr(undefined);
     setStage("otp");
     setLeft(RESEND_SECONDS);
@@ -88,12 +83,7 @@ export default function SignInPage() {
   };
 
   const verify = () => {
-    const code = digits.join("");
-    if (code.length < OTP_LEN) {
-      setErr(`Enter all ${OTP_LEN} digits.`);
-      return;
-    }
-    // Prototype: any code of the right length is accepted.
+    // Any code is accepted, including none at all.
     setBusy(true);
     signIn(phone.replace(/\D/g, ""));
     setTimeout(() => router.push("/account"), 550);
@@ -123,7 +113,7 @@ export default function SignInPage() {
             <p className="t-body mx-auto mt-4 max-w-[32ch]">
               {stage === "phone"
                 ? "One number, no password. We'll text you a code — new here or not, this is the way in."
-                : `We sent a ${OTP_LEN}-digit code to ${formatPhone(phone)}.`}
+                : `We sent a ${OTP_LEN}-digit code to ${formatPhone(phone) || "your phone"}.`}
             </p>
           </div>
 

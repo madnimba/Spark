@@ -5,17 +5,20 @@ import { gsap, ScrollTrigger, useIsoLayoutEffect, prefersReducedMotion } from "@
 import { DESIGNS, DEFAULT_DESIGN } from "../visuals/designs";
 import SparkCard, { CARD_RATIO } from "../visuals/SparkCard";
 
-/* --- physics constants, tuned by feel on a phone ------------------------- */
-const IDLE_SPIN = 0.28; // deg per 60fps frame ≈ one turn every ~21s
-const DRAG_YAW = 0.42;
-const DRAG_PITCH = 0.3;
-const TORQUE = 0.045; // roll produced by grabbing away from the centre
-const TAP_YAW = 3.2;
-const TAP_PITCH = 2.6;
-const SETTLE = 0.045; // how fast spin returns to idle after you let go
-const DAMP = 0.9;
-const MAX_PITCH = 34;
-const MAX_ROLL = 22;
+/* --- motion constants, tuned by feel on a phone -------------------------
+   The drag is 1:1 — a pixel of finger travel is a fixed number of degrees,
+   applied straight to the angle. It used to add *velocity* per move event,
+   which meant the card kept accelerating while you dragged and carried on
+   spinning after you stopped. Velocity now only exists after release. */
+const IDLE_SPIN = 0.22; // deg per 60fps frame ≈ one turn every ~27s
+const DRAG_YAW = 0.32; // degrees of yaw per pixel dragged
+const DRAG_PITCH = 0.2; // degrees of pitch per pixel dragged
+const TORQUE = 0.01; // gentle roll when the grab is away from centre
+const FLICK = 0.5; // share of the final drag speed carried on release
+const SETTLE = 0.05; // how fast spin returns to idle after you let go
+const DAMP = 0.88;
+const MAX_PITCH = 30;
+const MAX_ROLL = 16;
 
 export default function CardStudio() {
   const root = useRef<HTMLElement>(null);
@@ -58,18 +61,20 @@ export default function CardStudio() {
       const f = Math.min(deltaTime / 16.667, 3);
       const s = m.current;
 
+      // While a finger is down the angles are written directly by the pointer
+      // handler, so there is nothing to integrate — the card sits exactly
+      // where the drag put it and moves not one degree further.
       if (!s.dragging) {
-        // ease the yaw back to its resting spin, bleed off pitch and roll
         s.vry += (IDLE_SPIN - s.vry) * SETTLE * f;
         s.vrx *= Math.pow(DAMP, f);
         s.vrz *= Math.pow(DAMP, f);
         s.rx += -s.rx * 0.05 * f;
         s.rz += -s.rz * 0.07 * f;
-      }
 
-      s.rx = gsap.utils.clamp(-MAX_PITCH, MAX_PITCH, s.rx + s.vrx * f);
-      s.ry += s.vry * f;
-      s.rz = gsap.utils.clamp(-MAX_ROLL, MAX_ROLL, s.rz + s.vrz * f);
+        s.rx = gsap.utils.clamp(-MAX_PITCH, MAX_PITCH, s.rx + s.vrx * f);
+        s.ry += s.vry * f;
+        s.rz = gsap.utils.clamp(-MAX_ROLL, MAX_ROLL, s.rz + s.vrz * f);
+      }
 
       gsap.set(el, { rotateX: s.rx, rotateY: s.ry, rotateZ: s.rz });
     };
@@ -113,11 +118,11 @@ export default function CardStudio() {
       s.lastX = e.clientX;
       s.lastY = e.clientY;
 
-      // Touching alone should do something — nudge away from the touch point
-      // so a tap on a corner visibly swings that corner.
-      s.vry += s.gx * TAP_YAW;
-      s.vrx += -s.gy * TAP_PITCH;
-      s.vrz += -s.gx * 1.6;
+      // Touching alone no longer flings the card. Coming to rest under the
+      // finger is the whole point — it only moves once you actually move.
+      s.vrx = 0;
+      s.vry = 0;
+      s.vrz = 0;
 
       e.currentTarget.setPointerCapture?.(e.pointerId);
       dismissHint();
@@ -143,15 +148,27 @@ export default function CardStudio() {
     s.lastX = e.clientX;
     s.lastY = e.clientY;
 
-    s.vry += dx * DRAG_YAW;
-    s.vrx += -dy * DRAG_PITCH;
-    // grabbing off-centre converts drag into roll — the "sway"
-    s.vrz += (s.gx * dy - s.gy * dx) * TORQUE;
+    // Written straight to the angle: the card turns by exactly what the finger
+    // travelled, and stops the instant the finger does.
+    s.ry += dx * DRAG_YAW;
+    s.rx = gsap.utils.clamp(-MAX_PITCH, MAX_PITCH, s.rx - dy * DRAG_PITCH);
+    // grabbing off-centre converts drag into a little roll — the "sway"
+    s.rz = gsap.utils.clamp(-MAX_ROLL, MAX_ROLL, s.rz + (s.gx * dy - s.gy * dx) * TORQUE);
+
+    // Remembered only so a release can hand off a flick.
+    s.vry = dx * DRAG_YAW;
+    s.vrx = -dy * DRAG_PITCH;
   }, []);
 
   const endDrag = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    m.current.dragging = false;
-    m.current.axis = null;
+    const s = m.current;
+    s.dragging = false;
+    s.axis = null;
+    // Carry a fraction of the last drag speed so a swipe still feels like one,
+    // then let it settle back to the idle turn.
+    s.vry *= FLICK;
+    s.vrx *= FLICK;
+    s.vrz = 0;
     e.currentTarget.releasePointerCapture?.(e.pointerId);
   }, []);
 
@@ -173,7 +190,7 @@ export default function CardStudio() {
         { scale: 0.94 },
         { scale: 1, duration: 0.9, ease: "elastic.out(1, 0.55)" }
       );
-      m.current.vrz += 3.5;
+      m.current.vrz += 1.6;
     },
     [active]
   );

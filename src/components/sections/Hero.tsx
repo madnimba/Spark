@@ -63,8 +63,7 @@ export default function Hero() {
                 { yPercent: 26, rotate: 14, scale: 0.8, autoAlpha: 0, duration: 1.4 },
                 "-=1.3"
               )
-              .from(".h-chip", { scale: 0, autoAlpha: 0, duration: 0.7, stagger: 0.08 }, "-=0.9")
-              .from(".h-scroll", { autoAlpha: 0, duration: 0.6 }, "-=0.4");
+              .from(".h-chip", { scale: 0, autoAlpha: 0, duration: 0.7, stagger: 0.08 }, "-=0.9");
           } catch {
             gsap.set(".h-anim", { autoAlpha: 1, clearProps: "transform" });
           }
@@ -196,16 +195,6 @@ export default function Hero() {
         </div>
       </div>
 
-      <a
-        href="#why"
-        aria-label="Scroll down"
-        className="h-anim h-scroll absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1.5"
-      >
-        <span className="t-label text-[9px]!">Scroll</span>
-        <span className="flex h-8 w-5 items-start justify-center rounded-full border-2 border-white/55 p-1">
-          <span className="h-1.5 w-1 animate-[spark-bob_1.6s_ease-in-out_infinite] rounded-full bg-yellow" />
-        </span>
-      </a>
     </section>
   );
 }

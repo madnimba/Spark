@@ -77,29 +77,9 @@ export default function PayPage() {
 
   const active = METHODS.find((m) => m.id === method) ?? null;
 
-  const validate = () => {
-    const e: Record<string, string> = {};
-    if (!active) return e;
-
-    if (active.kind === "mfs") {
-      if (!/^1[3-9]\d{8}$/.test(mfsNumber.replace(/\D/g, "")))
-        e.mfsNumber = "Enter your 11-digit account number.";
-      if (!/^\d{4,5}$/.test(mfsPin)) e.mfsPin = "Your PIN is 4 or 5 digits.";
-    } else {
-      const digits = cardNo.replace(/\D/g, "");
-      if (digits.length < 15) e.cardNo = "Enter the full card number.";
-      const [mm, yy] = exp.split("/");
-      if (!mm || !yy || Number(mm) < 1 || Number(mm) > 12) e.exp = "Use MM/YY.";
-      if (!/^\d{3,4}$/.test(cvv)) e.cvv = "3 or 4 digits.";
-      if (holder.trim().length < 3) e.holder = "Name on the card.";
-    }
-    return e;
-  };
-
+  /* Every payment field is optional — an empty form pays and moves on. */
   const pay = () => {
-    const e = validate();
-    setErrors(e);
-    if (Object.keys(e).length) return;
+    setErrors({});
     setStage("processing");
     setTick(0);
   };

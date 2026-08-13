@@ -53,35 +53,15 @@ const EMPTY_DOCS: Docs = {
   nomineePhoto: null,
 };
 
-/** Validation runs per step so nobody is told about page-two problems on page one. */
-function validateDetails(d: Details) {
-  const e: Partial<Record<keyof Details, string>> = {};
-
-  if (d.name.trim().length < 3) e.name = "Give your full name as it appears on your NID.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email.trim())) e.email = "That doesn't look like an email address.";
-
-  // No length or operator-prefix rule — any number is accepted, it just has to
-  // be there.
-  if (!d.mobile.replace(/\D/g, "")) e.mobile = "Enter your mobile number.";
-
-  if (!d.profession) e.profession = "Pick the closest option.";
-
-  const age = Number(d.age);
-  if (!Number.isFinite(age) || age < 18) e.age = "You must be 18 or over to hold a Spark card.";
-  else if (age > 100) e.age = "Please check that age.";
-
-  const income = Number(d.income.replace(/[^\d]/g, ""));
-  if (!Number.isFinite(income) || income <= 0) e.income = "Enter your monthly income in taka.";
-
-  return e;
+/* Every field is optional — an empty form submits and moves on.
+   The error plumbing below is left wired up so restoring a rule is a matter of
+   filling one of these functions back in, nothing more. */
+function validateDetails(): Partial<Record<keyof Details, string>> {
+  return {};
 }
 
-function validateDocs(d: Docs) {
-  const e: Partial<Record<keyof Docs, string>> = {};
-  if (!d.nid) e.nid = "Your NID is required.";
-  if (!d.photo) e.photo = "A passport-size photo is required.";
-  if (!d.orgId) e.orgId = "Upload your university or employee ID.";
-  return e;
+function validateDocs(): Partial<Record<keyof Docs, string>> {
+  return {};
 }
 
 export default function ApplyPage() {
@@ -130,7 +110,7 @@ export default function ApplyPage() {
   }, [step]);
 
   const goToDocs = () => {
-    const e = validateDetails(details);
+    const e = validateDetails();
     setErrD(e);
     if (Object.keys(e).length) {
       // Send focus to the problem rather than leaving the visitor to hunt.
@@ -142,7 +122,7 @@ export default function ApplyPage() {
   };
 
   const submit = () => {
-    const e = validateDocs(docs);
+    const e = validateDocs();
     setErrF(e);
     if (Object.keys(e).length) return;
 

@@ -93,7 +93,9 @@ export default function AccountPage() {
               <span className="t-marker text-yellow">{ACCOUNT.holder.split(" ")[0]}</span>
             </h1>
             <p className="mt-2 text-[13px] text-white/60">
-              {formatPhone(session.phone)} · member since {ACCOUNT.memberSince}
+              {/* the number is optional at sign-in, so it may not be there */}
+              {formatPhone(session.phone) && `${formatPhone(session.phone)} · `}
+              member since {ACCOUNT.memberSince}
             </p>
           </div>
 
