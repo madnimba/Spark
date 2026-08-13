@@ -39,6 +39,27 @@ function Contactless({ color }: { color: string }) {
   );
 }
 
+/** Mastercard's interlocking discs. Spark runs on the Mastercard network. */
+function Mastercard() {
+  return (
+    <span className="inline-flex flex-col items-end" style={{ gap: "0.8cqw" }}>
+      <svg
+        viewBox="0 0 48 30"
+        style={{ width: "17cqw", height: "auto" }}
+        aria-label="Mastercard"
+        role="img"
+      >
+        <circle cx="18" cy="15" r="14" fill="#EB001B" />
+        <circle cx="30" cy="15" r="14" fill="#F79E1B" />
+        <path
+          d="M24 4.4a13.96 13.96 0 0 0 0 21.2 13.96 13.96 0 0 0 0-21.2Z"
+          fill="#FF5F00"
+        />
+      </svg>
+    </span>
+  );
+}
+
 function SparkMark({ color, scale = 1 }: { color: string; scale?: number }) {
   return (
     <span className="inline-flex items-center" style={{ gap: "1.2cqw" }}>
@@ -155,29 +176,19 @@ export default function SparkCard({
                 </p>
               </div>
 
-              <div className="text-right">
+              <div className="flex flex-col items-end">
                 <p
                   style={{
                     color: design.inkSoft,
                     fontFamily: "var(--font-mono)",
                     fontSize: "2.1cqw",
                     letterSpacing: "0.2em",
+                    marginBottom: "1cqw",
                   }}
                 >
-                  PREPAID
+                  DUAL CURRENCY
                 </p>
-                <p
-                  style={{
-                    color: design.ink,
-                    fontSize: "5.2cqw",
-                    fontWeight: 800,
-                    fontStyle: "italic",
-                    letterSpacing: "-0.02em",
-                    marginTop: "0.4cqw",
-                  }}
-                >
-                  VISA
-                </p>
+                <Mastercard />
               </div>
             </div>
           </div>
@@ -220,8 +231,8 @@ export default function SparkCard({
                 marginTop: "3.5cqw",
               }}
             >
-              LOAD, SPEND AND FREEZE THIS CARD FROM THE SPARK APP. LOST IT? FREEZE
-              IT IN ONE TAP — NOTHING LEAVES YOUR BALANCE.
+              ACTIVATE AND SET YOUR PIN DIGITALLY. RELOAD VIA THE GO PLUS APP,
+              BEFTN, ANY BRANCH OR A CRM. DUAL CURRENCY, HOME AND AWAY.
             </p>
           </div>
 

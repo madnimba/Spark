@@ -1,22 +1,19 @@
 "use client";
 
 import { useRef } from "react";
-import { gsap, ScrollTrigger, SplitText, useIsoLayoutEffect, prefersReducedMotion } from "@/lib/gsap";
+import { gsap, ScrollTrigger, useIsoLayoutEffect, prefersReducedMotion } from "@/lib/gsap";
 import { onReady } from "@/lib/bus";
 import { DESIGNS } from "../visuals/designs";
 import SparkCard from "../visuals/SparkCard";
 import Button from "../ui/Button";
 
-/**
- * The opening statement: what Spark is, in three words and one card.
- * Everything here is pointer-driven, and pointer events cover touch, so the
- * parallax works identically under a finger.
- */
+const LIFE = ["Travel", "Music", "Food", "Gadgets", "Education", "Fashion", "Entertainment"];
+
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
 
   useIsoLayoutEffect(() => {
-    const ctx = gsap.context(() => {
+    const ctx = gsap.context((self) => {
       if (prefersReducedMotion()) {
         gsap.set(".h-anim", { autoAlpha: 1 });
         return;
@@ -24,24 +21,49 @@ export default function Hero() {
 
       gsap.set(".h-anim", { autoAlpha: 0 });
 
-      const off = onReady(() => {
-        const title = SplitText.create(".h-title", { type: "lines,words", mask: "lines" });
-        const tl = gsap.timeline({ defaults: { ease: "expo" } });
+      let played = false;
+      const play = () => {
+        if (played) return;
+        played = true;
+        window.clearTimeout(failsafe);
 
-        tl.set(".h-anim", { autoAlpha: 1 })
-          .from(".h-kicker", { yPercent: 130, duration: 0.9 })
-          .from(title.words, { yPercent: 120, duration: 1.2, stagger: 0.06 }, "-=0.55")
-          .from(".h-marker", { scale: 0.4, rotate: -14, autoAlpha: 0, duration: 1 }, "-=0.7")
-          .from(".h-sub", { y: 24, autoAlpha: 0, duration: 0.9 }, "-=0.7")
-          .from(".h-cta", { y: 22, autoAlpha: 0, duration: 0.8, stagger: 0.08 }, "-=0.65")
-          .from(
-            ".h-card",
-            { yPercent: 26, rotate: 14, scale: 0.8, autoAlpha: 0, duration: 1.4 },
-            "-=1.1"
-          )
-          .from(".h-chip", { scale: 0, autoAlpha: 0, duration: 0.7, stagger: 0.08 }, "-=0.9")
-          .from(".h-scroll", { autoAlpha: 0, duration: 0.6 }, "-=0.4");
-      });
+        // `self.add` runs this inside the context even though it fires long
+        // after the context function returned — without it these selectors go
+        // global and the animations aren't tracked for cleanup.
+        self.add(() => {
+          // The reveal must survive anything going wrong below it. If a tween
+          // throws, the copy still ends up visible rather than stuck at zero
+          // opacity, which is the one failure mode that loses the whole page.
+          try {
+            const tl = gsap.timeline({ defaults: { ease: "expo" } });
+            tl.set(".h-anim", { autoAlpha: 1 })
+              .from(".h-kicker", { yPercent: 130, duration: 0.9 })
+              .from(".h-l1", { yPercent: 115, duration: 1.1 }, "-=0.55")
+              .from(
+                ".h-l2",
+                { yPercent: 115, rotate: 8, scale: 0.9, duration: 1.15 },
+                "-=0.85"
+              )
+              .from(".h-sub", { y: 24, autoAlpha: 0, duration: 0.9 }, "-=0.7")
+              .from(".h-tag", { y: 16, autoAlpha: 0, duration: 0.6, stagger: 0.05 }, "-=0.7")
+              .from(".h-cta", { y: 22, autoAlpha: 0, duration: 0.8, stagger: 0.08 }, "-=0.5")
+              .from(
+                ".h-card",
+                { yPercent: 26, rotate: 14, scale: 0.8, autoAlpha: 0, duration: 1.4 },
+                "-=1.3"
+              )
+              .from(".h-chip", { scale: 0, autoAlpha: 0, duration: 0.7, stagger: 0.08 }, "-=0.9")
+              .from(".h-scroll", { autoAlpha: 0, duration: 0.6 }, "-=0.4");
+          } catch {
+            gsap.set(".h-anim", { autoAlpha: 1, clearProps: "transform" });
+          }
+        });
+      };
+
+      // Belt and braces: the intro event is the normal trigger, the timer is
+      // the guarantee. Whichever lands first wins; the other is a no-op.
+      const failsafe = window.setTimeout(play, 3500);
+      const off = onReady(play);
 
       /* --- touch / pointer parallax --- */
       const cardTo = {
@@ -62,10 +84,7 @@ export default function Hero() {
       };
       window.addEventListener("pointermove", onMove, { passive: true });
 
-      /* --- scroll exit: the hero recedes as it leaves ---
-         End on `bottom top`, i.e. exactly when the section clears the screen.
-         Finishing earlier (say `bottom 25%`) empties the hero while a quarter
-         of it is still on screen, which reads as a hole in the page. */
+      /* --- scroll exit: the hero recedes exactly as it clears the screen --- */
       gsap.to(".h-stage", {
         scale: 0.88,
         y: -30,
@@ -75,6 +94,7 @@ export default function Hero() {
       });
 
       return () => {
+        window.clearTimeout(failsafe);
         window.removeEventListener("pointermove", onMove);
         off?.();
       };
@@ -88,9 +108,6 @@ export default function Hero() {
     <section
       ref={root}
       id="top"
-      // Symmetric, nav-derived padding. This was pt-28 against pb-16, so
-      // `justify-center` centred the content inside a lopsided box and pushed
-      // it down — that offset is what read as a gap above the first section.
       className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden pb-[var(--nav-h)] pt-[var(--nav-h)]"
     >
       <div className="h-stage shell relative">
@@ -100,37 +117,49 @@ export default function Hero() {
             <div className="h-anim mask mx-auto w-fit lg:mx-0">
               <p className="h-kicker inline-flex items-center gap-2 rounded-full border-2 border-white/50 px-3.5 py-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-yellow" />
-                <span className="t-label text-[10px]! text-fg">Dhaka Bank PLC · Prepaid</span>
+                <span className="t-label text-[10px]! text-fg">Dhaka Bank PLC · Spark Card</span>
               </p>
             </div>
 
-            <h1 className="h-anim h-title t-display mt-5">
-              Spark
-              <br />
-              Prepaid
-              <br />
-              Card
+            <h1 className="mt-5">
+              <span className="h-anim mask block">
+                <span className="h-l1 t-marker block text-[clamp(2.9rem,14vw,7.5rem)] text-white">
+                  Follow ur
+                </span>
+              </span>
+              <span className="h-anim mask mt-1 block overflow-visible">
+                <span className="h-l2 t-marker slab inline-block text-[clamp(3.2rem,16vw,8.5rem)] text-white">
+                  Spark
+                </span>
+              </span>
             </h1>
 
-            <p className="h-anim h-marker t-marker mt-4 text-[clamp(1.6rem,7vw,3rem)] text-white">
-              <span className="slab">Follow ur spark</span>
+            <p className="h-anim h-sub t-body mx-auto mt-7 max-w-[42ch] lg:mx-0">
+              Why do you need another card? Because your life has its own
+              rhythm — and your card should fit right in.
             </p>
 
-            <p className="h-anim h-sub t-body mx-auto mt-6 max-w-[40ch] lg:mx-0">
-              Load it from your phone. Tap it anywhere Visa goes. Freeze it the
-              second it goes missing. No salary slip, no minimum balance, no
-              waiting at a counter.
-            </p>
+            {/* the seven worlds Spark is built around */}
+            <ul className="mt-5 flex flex-wrap justify-center gap-2 lg:justify-start">
+              {LIFE.map((w) => (
+                <li
+                  key={w}
+                  className="h-anim h-tag rounded-full border-2 border-white/45 px-3 py-1 text-[12px] font-bold uppercase tracking-tight text-white/85 transition-colors hover:border-yellow hover:text-yellow sm:text-[13px]"
+                >
+                  {w}
+                </li>
+              ))}
+            </ul>
 
             <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
               <div className="h-anim h-cta">
-                <Button href="#card" tone="yellow">
-                  Design your card
+                <Button href="#why" tone="yellow">
+                  Discover Spark →
                 </Button>
               </div>
               <div className="h-anim h-cta">
-                <Button href="#get" tone="outline">
-                  How to get one
+                <Button href="#apply" tone="outline">
+                  Apply now
                 </Button>
               </div>
             </div>
@@ -144,29 +173,27 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* floating call-outs */}
             <div className="h-anim h-chip pop-white absolute -left-3 top-[6%] rounded-full bg-yellow px-3 py-1.5 sm:-left-6">
               <span className="text-[11px] font-extrabold uppercase tracking-wide text-blue-ink sm:text-xs">
-                ৳0 to open
+                4× lounge access
               </span>
             </div>
             <div className="h-anim h-chip pop-white absolute -right-2 top-[44%] rounded-full bg-pink px-3 py-1.5 sm:-right-6">
               <span className="text-[11px] font-extrabold uppercase tracking-wide text-white sm:text-xs">
-                Tap to pay
+                0% markup
               </span>
             </div>
             <div className="h-anim h-chip pop-white absolute -left-1 bottom-[4%] rounded-full bg-white px-3 py-1.5 sm:-left-5">
               <span className="text-[11px] font-extrabold uppercase tracking-wide text-blue-ink sm:text-xs">
-                Freeze anytime
+                Dual currency
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* scroll cue */}
       <a
-        href="#intro"
+        href="#why"
         aria-label="Scroll down"
         className="h-anim h-scroll absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1.5"
       >

@@ -8,9 +8,10 @@ import Logo, { BankMark } from "./Logo";
 import Button from "../ui/Button";
 
 const LINKS = [
+  { label: "Why Spark", href: "#why" },
   { label: "The card", href: "#card" },
-  { label: "Perks", href: "#perks" },
-  { label: "Get one", href: "#get" },
+  { label: "Benefits", href: "#lifestyle" },
+  { label: "Apply", href: "#apply" },
 ];
 
 export default function Nav() {

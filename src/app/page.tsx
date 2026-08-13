@@ -9,10 +9,11 @@ import Footer from "@/components/core/Footer";
 import Hero from "@/components/sections/Hero";
 import Intro from "@/components/sections/Intro";
 import CardStudio from "@/components/sections/CardStudio";
-import Trust from "@/components/sections/Trust";
-import Perks from "@/components/sections/Perks";
+import Lifestyle from "@/components/sections/Lifestyle";
 import HowTo from "@/components/sections/HowTo";
 import Everywhere from "@/components/sections/Everywhere";
+import KeepGoing from "@/components/sections/KeepGoing";
+import Trust from "@/components/sections/Trust";
 import FinalCta from "@/components/sections/FinalCta";
 
 export default function Home() {
@@ -28,22 +29,24 @@ export default function Home() {
       <Nav />
 
       <main className="relative">
-        {/* the campaign moment */}
+        {/* Follow ur Spark */}
         <Hero />
-        {/* 01 — what the card actually is, in three beats */}
+        {/* 01 — why you'd want another card at all */}
         <Intro />
         {/* 02 — the card itself: pick a design, throw it around */}
         <CardStudio />
-        {/* 03 — why you'd carry it */}
-        <Perks />
-        {/* 04 — how to get one */}
+        {/* 03 — travel / everyday / plans. Deliberately after the card, so the
+            product is on screen before the reasons to carry it. */}
+        <Lifestyle />
+        {/* 04 — apply from home */}
         <HowTo />
-        {/* 05 — where it works */}
+        {/* 05 — activate, set PIN, reload */}
         <Everywhere />
-        {/* 06 — who issues it. Late on purpose: the card sells first, the
-            bank reassures afterwards. */}
+        {/* 06 — reasons to keep using it */}
+        <KeepGoing />
+        {/* 07 — who issues it */}
         <Trust />
-        {/* go */}
+        {/* Follow ur Spark → */}
         <FinalCta />
       </main>
 

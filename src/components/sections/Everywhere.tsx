@@ -3,46 +3,45 @@
 import Depth from "../ui/Depth";
 import Marquee from "../ui/Marquee";
 
-const PLACES = [
-  "Campus canteens",
-  "Ride hailing",
-  "Food delivery",
-  "Streaming subs",
-  "Online stores",
-  "ATM withdrawals",
-  "Grocery runs",
-  "Game top-ups",
-  "Bus tickets",
-  "Coffee",
+const BAND = [
+  "Activate digitally",
+  "Set your PIN",
+  "Reload anytime",
+  "Track every taka",
+  "Freeze in a tap",
 ];
 
-const CHANNELS = [
-  { t: "Tap in store", b: "Contactless up to ৳5,000 without a PIN.", c: "var(--yellow)", ink: "#041f5c" },
-  { t: "Pay online", b: "Works with any site that takes Visa.", c: "var(--pink)", ink: "#ffffff" },
-  { t: "Pull out cash", b: "Any ATM in Bangladesh, any network.", c: "#ffffff", ink: "#041f5c" },
-  { t: "Use it abroad", b: "200+ countries. Toggle it on before you fly.", c: "var(--cyan)", ink: "#041f5c" },
+const RELOAD = [
+  { t: "GO Plus App", b: "Top up straight from your phone, any hour.", c: "var(--yellow)", ink: "#041f5c" },
+  { t: "BEFTN", b: "Transfer in from any bank in Bangladesh.", c: "var(--pink)", ink: "#ffffff" },
+  { t: "Branches", b: "Over the counter at any Dhaka Bank branch.", c: "#ffffff", ink: "#041f5c" },
+  { t: "CRMs", b: "Cash Recycling Machines, deposit and go.", c: "var(--cyan)", ink: "#041f5c" },
 ];
 
+/** Everything you do with the card after it arrives — all of it from the phone. */
 export default function Everywhere() {
   return (
-    <section className="relative overflow-hidden py-16 sm:py-24">
+    <section id="app" className="relative overflow-hidden py-16 sm:py-24">
       <div className="shell">
         <Depth variant="swing">
           <div className="mx-auto max-w-2xl text-center">
-            <span className="t-label">05 — Where it works</span>
+            <span className="t-label">05 — In your hand</span>
             <h2 className="t-h1 mt-3">
-              Basically
+              Spark. All from
               <br />
-              <span className="t-marker text-yellow">everywhere</span>
+              <span className="t-marker text-yellow">your phone.</span>
             </h2>
+            <p className="t-body mx-auto mt-5 max-w-[34ch]">
+              Activate your card and set your PIN digitally. Nothing to post,
+              nothing to queue for.
+            </p>
           </div>
         </Depth>
       </div>
 
-      {/* velocity-reactive band */}
       <div className="my-10 border-y-[3px] border-blue-ink bg-white py-4">
         <Marquee baseSpeed={40}>
-          {PLACES.map((p) => (
+          {BAND.map((p) => (
             <span key={p} className="flex items-center">
               <span className="whitespace-nowrap px-5 text-[clamp(1.1rem,4.5vw,1.9rem)] font-extrabold uppercase tracking-tight text-blue-ink">
                 {p}
@@ -56,12 +55,9 @@ export default function Everywhere() {
       </div>
 
       <div className="shell">
-        <Depth
-          variant="depth"
-          stagger
-          className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
-        >
-          {CHANNELS.map((c) => (
+        <p className="t-label mb-4 text-center">Reload via</p>
+        <Depth variant="depth" stagger className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {RELOAD.map((c) => (
             <div
               key={c.t}
               className="rounded-2xl border-[3px] border-blue-ink p-5 shadow-[5px_5px_0_var(--blue-ink)]"

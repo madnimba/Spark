@@ -227,8 +227,9 @@ export default function CardStudio() {
             <span className="t-marker text-yellow">One is already yours.</span>
           </h2>
           <p className="t-body mx-auto mt-4 max-w-[38ch]">
-            Tap a design and watch it print. Then grab the card and throw it
-            around — it moves from wherever you touch it.
+            Dual currency, Mastercard everywhere, and a face you actually chose.
+            Tap a design to print it — then grab the card and throw it around.
+            It moves from wherever you touch it.
           </p>
         </div>
 

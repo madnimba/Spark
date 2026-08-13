@@ -69,30 +69,31 @@ export default function FinalCta() {
       <div className="shell relative">
         <Depth variant="depth">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="t-display">
-              Get ur
+            <p className="t-h2 text-white/85">
+              Don&apos;t let it become
               <br />
-              Spark
+              just another card.
+            </p>
+
+            <h2 className="t-marker mt-5 text-[clamp(2.6rem,13vw,7rem)] text-white">
+              <span className="slab">Follow Ur Spark</span>
             </h2>
 
-            <p className="t-marker mt-4 text-[clamp(1.4rem,6vw,2.4rem)]">
-              <span className="slab slab-yellow">Free to open. Free to keep.</span>
+            <p className="t-body mx-auto mt-7 max-w-[38ch]">
+              Apply digitally from home with three documents. No branch visit,
+              and no existing Dhaka Bank account needed.
             </p>
-
-            <p className="t-body mx-auto mt-6 max-w-[38ch]">
-              No salary requirement, no minimum balance, no annual fee for the
-              first year. Just a card that does what you tell it.
-            </p>
-
-            <div className="mt-9 flex flex-wrap justify-center gap-3">
-              <StoreBadge store="ios" />
-              <StoreBadge store="android" />
-            </div>
 
             <div className="mt-8 flex justify-center">
-              <Button href="#card" tone="pink">
-                Design yours first
+              <Button href="#apply" tone="yellow">
+                Apply now →
               </Button>
+            </div>
+
+            <p className="t-label mt-10">Manage it all in the GO Plus app</p>
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
+              <StoreBadge store="ios" />
+              <StoreBadge store="android" />
             </div>
           </div>
         </Depth>

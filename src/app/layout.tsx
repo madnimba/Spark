@@ -37,21 +37,23 @@ const SITE =
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
   title: {
-    default: "Spark Prepaid Card — Follow ur Spark",
+    default: "Spark Card by Dhaka Bank — Follow ur Spark",
     template: "%s · Spark",
   },
   description:
-    "The prepaid card built for how you actually spend. Load it, tap it, own it. Spark by Dhaka Bank PLC — pick your design and make it yours.",
+    "Because your life has its own rhythm. Spark by Dhaka Bank PLC: 4× Balaka Express Lounge access, 0% markup abroad, dual currency and cashback on youth lifestyle categories. Apply from home with three documents.",
   keywords: [
     "Spark card",
-    "Dhaka Bank prepaid card",
-    "prepaid card Bangladesh",
-    "student card",
+    "Dhaka Bank Spark",
     "youth card Bangladesh",
+    "dual currency card Bangladesh",
+    "student card Bangladesh",
+    "Mastercard Bangladesh",
   ],
   openGraph: {
-    title: "Spark Prepaid Card — Follow ur Spark",
-    description: "Load it, tap it, own it. Pick your design and make it yours.",
+    title: "Spark Card by Dhaka Bank — Follow ur Spark",
+    description:
+      "4× lounge access, 0% markup abroad, dual currency, and cashback on what you actually spend on.",
     url: SITE,
     siteName: "Spark",
     type: "website",
@@ -59,8 +61,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Spark Prepaid Card — Follow ur Spark",
-    description: "Load it, tap it, own it.",
+    title: "Spark Card by Dhaka Bank — Follow ur Spark",
+    description: "Because your life has its own rhythm.",
   },
   robots: { index: true, follow: true },
 };

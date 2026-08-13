@@ -6,7 +6,7 @@ import Counter from "../ui/Counter";
 const FACTS = [
   { v: 1995, l: "Serving Bangladesh since", plain: true },
   { v: 100, suffix: "+", l: "Branches nationwide" },
-  { v: 200, suffix: "+", l: "Countries, via Visa" },
+  { v: 9500, suffix: "+", l: "Mastercard partner outlets" },
 ];
 
 /**
@@ -19,7 +19,7 @@ export default function Trust() {
       <div className="shell">
         <Depth variant="rise">
           <div className="mx-auto max-w-3xl rounded-[28px] border-[3px] border-blue-ink bg-white/95 p-7 shadow-[7px_7px_0_var(--blue-ink)] sm:p-10">
-            <p className="t-label text-blue-ink/55">06 — Who&apos;s behind it</p>
+            <p className="t-label text-blue-ink/55">07 — Who&apos;s behind it</p>
 
             <h2 className="t-h2 mt-3 text-blue-ink">
               A brand-new card from a{" "}
